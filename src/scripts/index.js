@@ -1,12 +1,12 @@
 import "../pages/index.css";
 import { initialCards } from "./cards.js";
 import { createCard, deleteCard, handleLikeClick } from "./card.js";
-import { openModal, closeModal, closeByEscape } from "./modal.js";
+import { openModal, closeModal} from "./modal.js";
 
 // DOM узлы
 const placesList = document.querySelector(".places__list");
 const allPopups = document.querySelectorAll(".popup");
-const closeByButton = document.querySelectorAll(".popup__close");
+const closeButtons = document.querySelectorAll(".popup__close");
 
 //информация о пользователе
 const profileName = document.querySelector(".profile__title");
@@ -53,7 +53,7 @@ function openImagePopup(cardData) {
   openModal(imagePopup);
 }
 
-closeByButton.forEach((button) => {
+closeButtons.forEach((button) => {
   const popup = button.closest(".popup"); // конкретный попап
   button.addEventListener("click", () => {
     closeModal(popup); // закрываем этот конкретный попап
@@ -69,7 +69,7 @@ allPopups.forEach((overlay) => {
 });
 
 // закрытие попапов на крестик
-closeByButton.forEach((button) => {
+closeButtons.forEach((button) => {
   const popup = button.closest(".popup"); // конкретный попап
   button.addEventListener("click", () => {
     closeModal(popup); // закрываем этот конкретный попап
@@ -121,7 +121,7 @@ editButton.addEventListener("click", function () {
 });
 
 // функция отправки формы редактирования профиля
-function handleFormSubmit(evt) {
+function handleEditFormSubmit(evt) {
   evt.preventDefault();
   const newName = nameInput.value;
   const newJob = jobInput.value;
@@ -131,4 +131,4 @@ function handleFormSubmit(evt) {
 }
 
 // слушатель к форме редактировать профиль
-editFormElement.addEventListener("submit", handleFormSubmit);
+editFormElement.addEventListener("submit", handleEditFormSubmit);

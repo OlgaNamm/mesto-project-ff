@@ -23,4 +23,4 @@ function closeByEscape(evt) {
   }
 }
 
-export { openModal, closeModal, closeByEscape };
+export { openModal, closeModal };
