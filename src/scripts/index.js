@@ -1,9 +1,9 @@
 import "../pages/index.css";
 import { initialCards } from "./cards.js";
 import { createCard, deleteCard, handleLikeClick } from "./card.js";
-import { openModal, closeModal} from "./modal.js";
+import { openModal, closeModal } from "./modal.js";
 
-// DOM узлы
+// DOM узлы r
 const placesList = document.querySelector(".places__list");
 const allPopups = document.querySelectorAll(".popup");
 const closeButtons = document.querySelectorAll(".popup__close");
