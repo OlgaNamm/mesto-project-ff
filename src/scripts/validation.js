@@ -1,12 +1,3 @@
-const validationConfig = {
-  formSelector: ".popup__form",
-  inputSelector: ".popup__input",
-  submitButtonSelector: ".popup__button",
-  inactiveButtonClass: "popup__button_disabled",
-  inputErrorClass: "popup__input_type_error", //красная рамка
-  errorClass: "popup__error_visible", //сообщение об ошибке
-};
-
 function enableValidation(config) {
   const forms = document.querySelectorAll(config.formSelector);
   forms.forEach((form) => {
@@ -16,19 +7,16 @@ function enableValidation(config) {
     inputs.forEach((input) => {
       input.addEventListener("input", () => {
         //функция проверки валидности полей формы
-        //isInputValid(form, input, config.inputErrorClass, config.errorClass);
-        isInputValid(form, input, validationConfig);
-        //функция переключения состояния кнопки
+        isInputValid(form, input, config);
         toggleSubmitButton(inputs, submitButton, config.inactiveButtonClass);
       });
     });
-    //функция переключения состояния кнопки
     toggleSubmitButton(inputs, submitButton, config.inactiveButtonClass);
   });
 }
 
 //функция проверки валидности полей формы
-function isInputValid(formElement, inputElement, validationConfig) {
+function isInputValid(formElement, inputElement, config) {
   if (inputElement.validity.patternMismatch) {
     inputElement.setCustomValidity(inputElement.dataset.errorMessage);
   } else {
@@ -40,10 +28,10 @@ function isInputValid(formElement, inputElement, validationConfig) {
       formElement,
       inputElement,
       inputElement.validationMessage,
-      validationConfig
+      config
     );
   } else {
-    hideInputError(formElement, inputElement, validationConfig);
+    hideInputError(formElement, inputElement, config);
   }
 }
 
@@ -52,31 +40,31 @@ function showInputError(
   formElement,
   inputElement,
   errorMessage,
-  validationConfig
+  config
 ) {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.add(validationConfig.inputErrorClass);
+  inputElement.classList.add(config.inputErrorClass);
 
   if (inputElement.type === "url" && !inputElement.validity.valid) {
     if (inputElement.validity.typeMismatch) {
       errorElement.textContent = "Введите корректный URL-адрес.";
     } else {
-      errorElement.textContent = errorMessage; // Или используем стандартное сообщение, если другая ошибка
+      errorElement.textContent = errorMessage; // Или стандартное сообщение
     }
   } else {
-    // В противном случае выводим переданное сообщение об ошибке.
+    
     errorElement.textContent = errorMessage;
   }
 
-  errorElement.classList.add(validationConfig.errorClass);
+  errorElement.classList.add(config.errorClass);
 }
 
 //функция скрыть ошибку
-function hideInputError(formElement, inputElement, validationConfig) {
+function hideInputError(formElement, inputElement, config) {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.remove(validationConfig.inputErrorClass);
+  inputElement.classList.remove(config.inputErrorClass);
   errorElement.textContent = "";
-  errorElement.classList.remove(validationConfig.errorClass);
+  errorElement.classList.remove(config.errorClass);
 }
 
 //функция переключения состояния кнопки
@@ -111,4 +99,4 @@ function clearValidation(formElement, config) {
   toggleSubmitButton(inputs, submitButton, config.inactiveButtonClass);
 }
 
-export { validationConfig, enableValidation, clearValidation };
+export { enableValidation, clearValidation };
