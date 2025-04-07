@@ -1,13 +1,3 @@
-// Токен: 102b5c18-223e-4b83-9187-f1ea86749eb2
-// Идентификатор группы: wff-cohort-35
-
-/*
-1. Загрузить данные с сервера.
-2. Выводим данные на страницу. 
-3. Все изменения на странице передаём на сервер. 
-4. Обновляем страницу  с новыми данными.
-*/
-
 const config = {
   baseUrl: "https://nomoreparties.co/v1/wff-cohort-35",
   headers: {
@@ -17,16 +7,87 @@ const config = {
 };
 
 const handleResponse = (res) => {
-    if (res.ok) {
-      return res.json();
-    }
-  
-    return Promise.reject(`Ошибка: ${res.status}`);
-  };
+  if (res.ok) {
+    return res.json();
+  }
+  return Promise.reject(`Ошибка: ${res.status}`);
+};
 
-  
+// GET информация о пользователе
+export const getInitialUsersInfo = () => {
+  return fetch(`${config.baseUrl}/users/me`, {
+    headers: config.headers,
+  }).then(handleResponse);
+};
+
+// GET карточки
 export const getInitialCards = () => {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers,
   }).then(handleResponse);
 };
+
+//PATCH обновление информации о пользователе
+export const changeProfileData = (newProfileData) => {
+  return fetch(`${config.baseUrl}/users/me`, {
+    method: "PATCH",
+    headers: config.headers,
+    body: JSON.stringify(newProfileData),
+  }).then(handleResponse);
+};
+
+// POST добавить новую карточку
+export const postNewCard = (newCardData) => {
+  return fetch(`${config.baseUrl}/cards`, {
+    method: "POST",
+    headers: config.headers,
+    body: JSON.stringify(newCardData), //name link
+  }).then(handleResponse);
+};
+
+// удаление карточки ДОРАБОТАТЬ!!!
+export const deleteCard = (cardId) => {
+  return fetch(`${config.baseUrl}/cards/${cardId}`, {
+    method: "DELETE",
+    headers: config.headers,
+  }).then(handleResponse);
+};
+
+// Постановка лайка (PUT-запрос) ПРОВЕРИТЬ!!!
+export const putLikeCard = (cardId) => {
+  return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
+    method: "PUT",
+    headers: config.headers,
+  }).then(handleResponse);
+};
+
+// Снятие лайка (DELETE-запрос) ПРОВЕРИТЬ!!!
+export const deleteLikeCard = (cardId) => {
+  return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
+    method: "DELETE",
+    headers: config.headers,
+  }).then(handleResponse);
+};
+
+//Обновление аватара пользователя (PATCH-запрос) СДЕЛАТЬ!!!
+export const changeProfileImage = (newAvatar) => {
+  return fetch(`${config.baseUrl}/users/me/avatar`, {
+    method: "PATCH",
+    headers: config.headers,
+    body: JSON.stringify(newAvatar),
+  }).then(handleResponse);
+};
+
+/*
+СДЕЛАТЬ:
+1. иконка + редактирование аватара
+2. новый попап с формой - ссылка на картинку аватара (required type='url')
+3. счётчик лайков (span уже есть - проверить/сделать стили)
+4. текст на submit «Сохранение...»
+
+ДОРАБОТАТЬ:
+1. удаление карточки работает, но нужно убрать иконку
+
+Дополнительно:
+Попап удаления карточки?
+*/
