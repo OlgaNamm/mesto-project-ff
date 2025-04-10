@@ -2,7 +2,7 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 import "../pages/index.css";
 //import { initialCards } from "./cards.js";
-import { createCard, handleLikeClick } from "./card.js";
+import { createCard, handleLikeClick, updateLikesCount} from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validation.js";
 import {
@@ -170,13 +170,11 @@ function handleEditFormSubmit(evt) {
   evt.preventDefault();
   const newName = nameInput.value;
   const newAbout = jobInput.value;
-  //console.log("Новые данные:", newName, newAbout);
   changeProfileData({
     name: newName,
     about: newAbout,
   })
     .then((updatedUserData) => {
-      //console.log("Данные, полученные с сервера:", updatedUserData);
       setUserInfo(updatedUserData); // Обновляем информацию на странице
       closeModal(editPopup);
     })
@@ -199,7 +197,8 @@ Promise.all([getInitialUsersInfo(), getInitialCards()])
         cardData,
         openImagePopup,
         handleLikeClick,
-        profileId
+        profileId,
+        updateLikesCount
       );
       addCardToDOM(card);
     });

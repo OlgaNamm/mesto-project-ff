@@ -1,8 +1,8 @@
-import { deleteCard } from './api.js'; 
+import { deleteCard, putLikeCard, deleteLikeCard } from './api.js'; 
 /// Темплейт карточки
 const cardTemplate = document.querySelector("#card-template").content;
 
-function createCard(cardData, openImagePopup, handleLikeClick, profileId) {
+function createCard(cardData, openImagePopup, handleLikeClick, profileId, updateLikesCount) {
   //клонировать шаблон
   const cardElement = cardTemplate.querySelector(".card").cloneNode(true);
 
@@ -37,14 +37,16 @@ function createCard(cardData, openImagePopup, handleLikeClick, profileId) {
   });
 
   likeButton.addEventListener("click", () => {
-    handleLikeClick(likeButton);
+    handleLikeClick(cardData, likeButton, likesCounter, profileId);
   });
+
+  updateLikesCount(cardData.likes.length, likesCounter);
 
   return cardElement;
 }
 
 function handleDeleteCard(cardId, cardElement) {
-  deleteCard(cardId) // функция deleteCard из api.js
+  deleteCard(cardId)
       .then(() => {
           cardElement.remove(); // удаляем карточку из DOM после удаления с сервера
       })
@@ -53,12 +55,37 @@ function handleDeleteCard(cardId, cardElement) {
       });
 }
 
+function updateLikesCount(count, likesCounter) {
+  likesCounter.textContent = count;
+}
+
+function handleLikeClick(cardData, likeButton, likesCounter, profileId) {
+  const cardId = cardData._id;
+  const isLiked = cardData.likes.some(user => user._id === profileId);
+
+  const likePromise = isLiked ? deleteLikeCard(cardId) : putLikeCard(cardId);
+
+  likePromise
+      .then((updatedCard) => {
+          // Обновляем состояние кнопки лайка
+          likeButton.classList.toggle("card__like-button_is-active");
+          // Обновляем счетчик лайков
+          updateLikesCount(updatedCard.likes.length, likesCounter);
+           // Обновляем данные о лайках в cardData
+          cardData.likes = updatedCard.likes;
+      })
+      .catch((err) => {
+          console.error("Ошибка при лайке/дизлайке карточки:", err);
+      });
+}
+
+/*
 function handleLikeClick(likeButton) {
   likeButton.classList.toggle("card__like-button_is-active");
 }
-
+*/
 /*function addCardToDOM(cardElement) {
   placesList.append(cardElement);
 }
 */
-export { createCard, handleLikeClick };
+export { createCard, handleLikeClick, updateLikesCount };

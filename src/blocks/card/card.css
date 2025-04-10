@@ -13,3 +13,14 @@
   position: relative;
   overflow: hidden;
 }
+
+.card__like-conteiner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card__likes-counter {
+  font-size: 13px;
+  padding-top: 3px;
+}
