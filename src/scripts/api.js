@@ -41,11 +41,11 @@ export const postNewCard = (newCardData) => {
   return fetch(`${config.baseUrl}/cards`, {
     method: "POST",
     headers: config.headers,
-    body: JSON.stringify(newCardData), //name link
+    body: JSON.stringify(newCardData),
   }).then(handleResponse);
 };
 
-// удаление карточки ДОРАБОТАТЬ!!!
+// удаление карточки
 export const deleteCard = (cardId) => {
   return fetch(`${config.baseUrl}/cards/${cardId}`, {
     method: "DELETE",
@@ -53,7 +53,7 @@ export const deleteCard = (cardId) => {
   }).then(handleResponse);
 };
 
-// Постановка лайка (PUT-запрос) ПРОВЕРИТЬ!!!
+// Постановка лайка (PUT-запрос)
 export const putLikeCard = (cardId) => {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: "PUT",
@@ -61,7 +61,7 @@ export const putLikeCard = (cardId) => {
   }).then(handleResponse);
 };
 
-// Снятие лайка (DELETE-запрос) ПРОВЕРИТЬ!!!
+// Снятие лайка (DELETE-запрос)
 export const deleteLikeCard = (cardId) => {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: "DELETE",
@@ -82,11 +82,7 @@ export const changeProfileImage = (newAvatar) => {
 СДЕЛАТЬ:
 1. иконка + редактирование аватара
 2. новый попап с формой - ссылка на картинку аватара (required type='url')
-3. счётчик лайков (span уже есть - проверить/сделать стили)
-4. текст на submit «Сохранение...»
-
-ДОРАБОТАТЬ:
-1. удаление карточки работает, но нужно убрать иконку
+3. текст на submit «Сохранение...»
 
 Дополнительно:
 Попап удаления карточки?

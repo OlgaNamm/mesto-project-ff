@@ -2,7 +2,7 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 import "../pages/index.css";
 //import { initialCards } from "./cards.js";
-import { createCard, handleLikeClick, updateLikesCount} from "./card.js";
+import { createCard, handleLikeClick, updateLikesCount } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validation.js";
 import {
@@ -79,8 +79,19 @@ function addCardToPage(cardElement) {
 }
 */
 
-function addCardToDOM(cardElement) {
-  placesList.append(cardElement);
+function addCardToDOM(CardData) {
+  placesList.append(CardData);
+}
+
+function prependCardToDOM(CardData) {
+  const card = createCard(
+    CardData,
+    openImagePopup,
+    handleLikeClick,
+    profileId,
+    updateLikesCount
+  );
+  placesList.prepend(card);
 }
 
 //функция открытие попапа карточки
@@ -132,13 +143,7 @@ function handleAddFormSubmit(evt) {
     link: newCardLink,
   })
     .then((newCardData) => {
-      const card = createCard(
-        newCardData,
-        openImagePopup,
-        handleLikeClick,
-        profileId
-      );
-      addCardToDOM(card);
+      prependCardToDOM(newCardData);
       closeModal(addPopup);
       addFormElement.reset();
     })
@@ -189,7 +194,7 @@ editFormElement.addEventListener("submit", handleEditFormSubmit);
 //Promis.all для загрузки данных
 Promise.all([getInitialUsersInfo(), getInitialCards()])
   .then(([userData, cards]) => {
-    const profileId = userData._id; // ID пользователя
+    profileId = userData._id; // ID пользователя
     //обновить данные на странице
     setUserInfo(userData);
     cards.forEach((cardData) => {
