@@ -70,20 +70,19 @@ export const deleteLikeCard = (cardId) => {
 };
 
 //Обновление аватара пользователя (PATCH-запрос) СДЕЛАТЬ!!!
-export const changeProfileImage = (newAvatar) => {
+export const changeProfileImage = (avatarLink) => {
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: "PATCH",
     headers: config.headers,
-    body: JSON.stringify(newAvatar),
+    body: JSON.stringify({ avatar: avatarLink }),
   }).then(handleResponse);
 };
 
 /*
 СДЕЛАТЬ:
-1. иконка + редактирование аватара
-2. новый попап с формой - ссылка на картинку аватара (required type='url')
-3. текст на submit «Сохранение...»
+1. текст на submit «Сохранение...»
 
-Дополнительно:
-Попап удаления карточки?
+ДОДЕЛАТЬ:
+Есть ошибка при удалении карттчки в консоли
+Поправить стили аватара
 */

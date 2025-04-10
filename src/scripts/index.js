@@ -10,6 +10,7 @@ import {
   getInitialCards,
   changeProfileData,
   postNewCard,
+  changeProfileImage
 } from "./api.js";
 
 const validationConfig = {
@@ -25,32 +26,41 @@ const validationConfig = {
 const placesList = document.querySelector(".places__list");
 const allPopups = document.querySelectorAll(".popup");
 
+// формы
 const profileEditForm = document.forms["edit-profile"];
 const addNewCardForm = document.forms["new-place"];
+const avatarForm = document.forms["update-avatar"];
 
 //информация о пользователе
 const profileName = document.querySelector(".profile__title");
 const profileJob = document.querySelector(".profile__description");
 const profileAvatar = document.querySelector(".profile__image");
+//const profileImageContainer = document.querySelector(".profile__image-container");
 
 //кнопки
 const closeButtons = document.querySelectorAll(".popup__close");
 const editButton = document.querySelector(".profile__edit-button");
 const addButton = document.querySelector(".profile__add-button");
+const avatarButton = document.querySelector(".profile__edit-avatar-button");
+
+// попап редактирования аватара
+const avatarPopup = document.querySelector(".popup_type_avatar");
+const avatarLinkInput = avatarForm.querySelector(".popup__input_type_url");
+// const submitAvatarButton = document.querySelector("#avatar-submit-button");
 
 //попап редактирования профиля
 const editPopup = document.querySelector(".popup_type_edit");
 // input внутри попапа редактирования профиля, единственный нужный элемент
 const nameInput = editPopup.querySelector(".popup__input_type_name");
 const jobInput = editPopup.querySelector(".popup__input_type_description");
-const editFormElement = editPopup.querySelector(".popup__form");
+const editForm = editPopup.querySelector(".popup__form");
 
 //попап добавления карточки
 const addPopup = document.querySelector(".popup_type_new-card");
 // input внутри попапа добавления карточки, единственный нужный элемент
 const cardNameInput = addPopup.querySelector(".popup__input_type_card-name");
 const cardUrlInput = addPopup.querySelector(".popup__input_type_url");
-const addFormElement = addPopup.querySelector(".popup__form");
+const addForm = addPopup.querySelector(".popup__form");
 
 //попап карточки
 const imagePopup = document.querySelector(".popup_type_image");
@@ -79,6 +89,38 @@ function addCardToPage(cardElement) {
 }
 */
 
+// СЛУШАТЕЛИ
+
+// слушатель кнопка добавления карточки
+addButton.addEventListener("click", function () {
+  clearValidation(addNewCardForm, validationConfig);
+  openModal(addPopup);
+});
+
+// слушатель кнопка редактирования профиля
+editButton.addEventListener("click", function () {
+  clearValidation(profileEditForm, validationConfig);
+  nameInput.value = profileName.textContent;
+  jobInput.value = profileJob.textContent;
+  openModal(editPopup);
+});
+
+// слушатель кнопка редактирования аватара
+avatarButton.addEventListener("click", () => {
+  clearValidation(avatarForm, validationConfig);
+  avatarLinkInput.value = profileAvatar.src;
+  openModal(avatarPopup);
+});
+
+// слушатель к форме создания новой карточки
+addForm.addEventListener("submit", handleAddFormSubmit);
+
+// слушатель к форме редактировать профиль
+editForm.addEventListener("submit", handleEditFormSubmit);
+
+// слушатель к форме редактирования аватара
+avatarForm.addEventListener("submit", handleAvatarFormSubmit);
+
 function addCardToDOM(CardData) {
   placesList.append(CardData);
 }
@@ -92,6 +134,34 @@ function prependCardToDOM(CardData) {
     updateLikesCount
   );
   placesList.prepend(card);
+}
+
+const updateAvatar = (avatarLink) => {
+  //console.log("Новая ссылка на аватар:", avatarLink); 
+  profileAvatar.style.backgroundImage = `url(${avatarLink})`;
+  //console.log("Текущий background аватара:", profileAvatar.style.backgroundImage);
+};
+
+function handleAvatarFormSubmit(evt) {
+  evt.preventDefault();
+  const avatarLink = avatarLinkInput.value;
+
+  //console.log("Отправляемый URL:", avatarLink);
+  //console.log("Тело запроса:", JSON.stringify({ avatar: avatarLink }));
+
+  changeProfileImage(avatarLink)
+  .then(() => {
+    updateAvatar(avatarLink);
+    closeModal(avatarPopup);
+  })
+  .catch((err) => {
+    console.error("Ошибка при обновлении аватара:", err);
+    err.json().then(errorMessage => {
+      console.error("Сообщение об ошибке от сервера:", errorMessage);
+    }).catch(() => {
+      console.error("Не удалось получить сообщение об ошибке от сервера");
+    });
+})
 }
 
 //функция открытие попапа карточки
@@ -125,12 +195,6 @@ closeButtons.forEach((button) => {
   });
 });
 
-// слушатель кнопка добавления карточки
-addButton.addEventListener("click", function () {
-  clearValidation(addNewCardForm, validationConfig);
-  openModal(addPopup);
-});
-
 // функция отправки формы создания новой карточки
 function handleAddFormSubmit(evt) {
   evt.preventDefault();
@@ -145,15 +209,12 @@ function handleAddFormSubmit(evt) {
     .then((newCardData) => {
       prependCardToDOM(newCardData);
       closeModal(addPopup);
-      addFormElement.reset();
+      addForm.reset();
     })
     .catch((err) => {
       console.error("Ошибка при добавлении карточки:", err);
     });
 }
-
-// слушатель к форме создания новой карточки
-addFormElement.addEventListener("submit", handleAddFormSubmit);
 
 function setUserInfo(userData) {
   profileName.textContent = userData.name;
@@ -161,14 +222,6 @@ function setUserInfo(userData) {
   profileAvatar.src = userData.avatar;
   profileAvatar.alt = userData.name;
 }
-
-// слушатель кнопка редактирования профиля
-editButton.addEventListener("click", function () {
-  clearValidation(profileEditForm, validationConfig);
-  nameInput.value = profileName.textContent;
-  jobInput.value = profileJob.textContent;
-  openModal(editPopup);
-});
 
 // функция отправки формы редактирования профиля
 function handleEditFormSubmit(evt) {
@@ -187,9 +240,6 @@ function handleEditFormSubmit(evt) {
       console.error("Ошибка при обновлении профиля:", err);
     });
 }
-
-// слушатель к форме редактировать профиль
-editFormElement.addEventListener("submit", handleEditFormSubmit);
 
 //Promis.all для загрузки данных
 Promise.all([getInitialUsersInfo(), getInitialCards()])
