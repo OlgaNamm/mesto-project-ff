@@ -115,6 +115,8 @@ editButton.addEventListener("click", function () {
 avatarButton.addEventListener("click", () => {
   clearValidation(avatarForm, validationConfig);
   avatarLinkInput.value = profileAvatar.src;
+  const button = avatarForm.querySelector(validationConfig.submitButtonSelector);
+  renderLoading(false, button);
   openModal(avatarPopup);
 });
 
