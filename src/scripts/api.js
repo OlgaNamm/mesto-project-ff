@@ -69,7 +69,7 @@ export const deleteLikeCard = (cardId) => {
   }).then(handleResponse);
 };
 
-//Обновление аватара пользователя (PATCH-запрос) СДЕЛАТЬ!!!
+//Обновление аватара пользователя (PATCH-запрос)
 export const changeProfileImage = (avatarLink) => {
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: "PATCH",
@@ -77,12 +77,3 @@ export const changeProfileImage = (avatarLink) => {
     body: JSON.stringify({ avatar: avatarLink }),
   }).then(handleResponse);
 };
-
-/*
-СДЕЛАТЬ:
-1. текст на submit «Сохранение...»
-
-ДОДЕЛАТЬ:
-Есть ошибка при удалении карттчки в консоли
-Поправить стили аватара
-*/

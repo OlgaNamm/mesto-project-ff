@@ -1,15 +1,19 @@
-import { deleteCard, putLikeCard, deleteLikeCard } from './api.js'; 
-import { openModal, closeModal } from './modal.js';
-/// Темплейт карточки
-const cardTemplate = document.querySelector("#card-template").content;
-const confirmPopup = document.querySelector('.popup_type_confirm');
-const confirmForm = confirmPopup.querySelector('.popup__form');
+import { deleteCard, putLikeCard, deleteLikeCard } from "./api.js";
+import { openModal, closeModal } from "./modal.js";
 
-function createCard(cardData, openImagePopup, handleLikeClick, profileId, updateLikesCount) {
-  //клонировать шаблон
+const cardTemplate = document.querySelector("#card-template").content;
+const confirmPopup = document.querySelector(".popup_type_confirm");
+const confirmForm = confirmPopup.querySelector(".popup__form");
+
+function createCard(
+  cardData,
+  openImagePopup,
+  handleLikeClick,
+  profileId,
+  updateLikesCount
+) {
   const cardElement = cardTemplate.querySelector(".card").cloneNode(true);
 
-  //установить значения вложенных элементов
   const cardImage = cardElement.querySelector(".card__image");
   const cardAlt = cardElement.querySelector(".card__image");
   const cardTitle = cardElement.querySelector(".card__title");
@@ -29,12 +33,10 @@ function createCard(cardData, openImagePopup, handleLikeClick, profileId, update
     deleteCardButton.classList.add("card__delete-button_hidden");
   }
 
-  //слушатель удаления карточки
   deleteCardButton.addEventListener("click", () => {
     openConfirmPopup(cardData._id, cardElement);
-});
+  });
 
-  //слушатель клика на картинку для открытия попапа
   cardImage.addEventListener("click", () => {
     openImagePopup(cardData);
   });
@@ -50,21 +52,21 @@ function createCard(cardData, openImagePopup, handleLikeClick, profileId, update
 
 function openConfirmPopup(cardId, cardElement) {
   openModal(confirmPopup);
-  confirmForm.addEventListener('submit', (evt) => {
-      evt.preventDefault();
-      handleDeleteCard(cardId, cardElement);
+  confirmForm.addEventListener("submit", (evt) => {
+    evt.preventDefault();
+    handleDeleteCard(cardId, cardElement);
   });
 }
 
 function handleDeleteCard(cardId, cardElement) {
   deleteCard(cardId)
-      .then(() => {
-          cardElement.remove();
-          closeModal(confirmPopup);
-      })
-      .catch((err) => {
-          console.error("Ошибка при удалении карточки:", err);
-      });
+    .then(() => {
+      cardElement.remove();
+      closeModal(confirmPopup);
+    })
+    .catch((err) => {
+      console.error("Ошибка при удалении карточки:", err);
+    });
 }
 
 function updateLikesCount(count, likesCounter) {
@@ -73,31 +75,22 @@ function updateLikesCount(count, likesCounter) {
 
 function handleLikeClick(cardData, likeButton, likesCounter, profileId) {
   const cardId = cardData._id;
-  const isLiked = cardData.likes.some(user => user._id === profileId);
+  const isLiked = cardData.likes.some((user) => user._id === profileId);
 
   const likePromise = isLiked ? deleteLikeCard(cardId) : putLikeCard(cardId);
 
   likePromise
-      .then((updatedCard) => {
-          // Обновляем состояние кнопки лайка
-          likeButton.classList.toggle("card__like-button_is-active");
-          // Обновляем счетчик лайков
-          updateLikesCount(updatedCard.likes.length, likesCounter);
-           // Обновляем данные о лайках в cardData
-          cardData.likes = updatedCard.likes;
-      })
-      .catch((err) => {
-          console.error("Ошибка при лайке/дизлайке карточки:", err);
-      });
+    .then((updatedCard) => {
+      // Обновляем состояние кнопки лайка
+      likeButton.classList.toggle("card__like-button_is-active");
+      // Обновляем счетчик лайков
+      updateLikesCount(updatedCard.likes.length, likesCounter);
+      // Обновляем данные о лайках в cardData
+      cardData.likes = updatedCard.likes;
+    })
+    .catch((err) => {
+      console.error("Ошибка при лайке/дизлайке карточки:", err);
+    });
 }
 
-/*
-function handleLikeClick(likeButton) {
-  likeButton.classList.toggle("card__like-button_is-active");
-}
-*/
-/*function addCardToDOM(cardElement) {
-  placesList.append(cardElement);
-}
-*/
 export { createCard, handleLikeClick, updateLikesCount };
