@@ -82,14 +82,15 @@ function prependCardToDOM(cardData) {
   placesList.prepend(card);
 }
 
+
 function openConfirmPopup(cardId, cardElement) {
   openModal(confirmPopup);
   function clickHandler(evt) {
     evt.preventDefault();
     handleDeleteCard(cardId, cardElement);
-    confirmForm.removeEventListener("click", clickHandler);
+    confirmForm.onclick = null; //удаляет слушатель после клика
   }
-  confirmForm.addEventListener("click", clickHandler);
+  confirmForm.onclick = clickHandler; //перезаписывает обработчик
 }
 
 closeButtons.forEach((button) => {
