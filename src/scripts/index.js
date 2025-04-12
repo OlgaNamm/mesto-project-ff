@@ -1,7 +1,5 @@
-import "core-js/stable";
-import "regenerator-runtime/runtime";
 import "../pages/index.css";
-import { createCard, handleLikeClick, updateLikesCount } from "./card.js";
+import { createCard, handleDeleteCard } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validation.js";
 import {
@@ -24,11 +22,13 @@ const validationConfig = {
 // DOM узлы
 const placesList = document.querySelector(".places__list");
 const allPopups = document.querySelectorAll(".popup");
+export const confirmPopup = document.querySelector(".popup_type_confirm");
 
 // формы
 const profileEditForm = document.forms["edit-profile"];
 const addNewCardForm = document.forms["new-place"];
 const avatarForm = document.forms["update-avatar"];
+const confirmForm = document.forms["confirm-delete"];
 
 //информация о пользователе
 const profileName = document.querySelector(".profile__title");
@@ -68,19 +68,28 @@ let profileId;
 
 enableValidation(validationConfig); //вкл валидацию всех форм
 
-function addCardToDOM(CardData) {
-  placesList.append(CardData);
+function addCardToDOM(cardData) {
+  placesList.append(cardData);
 }
 
-function prependCardToDOM(CardData) {
+function prependCardToDOM(cardData) {
   const card = createCard(
-    CardData,
+    cardData,
     openImagePopup,
-    handleLikeClick,
     profileId,
-    updateLikesCount
+    openConfirmPopup
   );
   placesList.prepend(card);
+}
+
+function openConfirmPopup(cardId, cardElement) {
+  openModal(confirmPopup);
+  function clickHandler(evt) {
+    evt.preventDefault();
+    handleDeleteCard(cardId, cardElement);
+    confirmForm.removeEventListener("click", clickHandler);
+  }
+  confirmForm.addEventListener("click", clickHandler);
 }
 
 closeButtons.forEach((button) => {
@@ -98,8 +107,6 @@ allPopups.forEach((overlay) => {
   });
 });
 
-// СЛУШАТЕЛИ
-
 addButton.addEventListener("click", function () {
   clearValidation(addNewCardForm, validationConfig);
   openModal(addPopup);
@@ -115,7 +122,9 @@ editButton.addEventListener("click", function () {
 avatarButton.addEventListener("click", () => {
   clearValidation(avatarForm, validationConfig);
   avatarLinkInput.value = profileAvatar.src;
-  const button = avatarForm.querySelector(validationConfig.submitButtonSelector);
+  const button = avatarForm.querySelector(
+    validationConfig.submitButtonSelector
+  );
   renderLoading(false, button);
   openModal(avatarPopup);
 });
@@ -125,8 +134,6 @@ addForm.addEventListener("submit", handleAddFormSubmit);
 editForm.addEventListener("submit", handleEditFormSubmit);
 
 avatarForm.addEventListener("submit", handleAvatarFormSubmit);
-
-// ФУНКЦИИ
 
 // открытие попапа карточки
 function openImagePopup(cardData) {
@@ -143,12 +150,7 @@ function renderLoading(
   buttonText = "Сохранить",
   loadingText = "Сохранение..."
 ) {
-  if (isLoading) {
-    // если идёт загрузка
-    button.textContent = loadingText;
-  } else {
-    button.textContent = buttonText;
-  }
+  button.textContent = isLoading ? loadingText : buttonText;
 }
 
 // АВАТАРКА
@@ -256,9 +258,8 @@ Promise.all([getInitialUsersInfo(), getInitialCards()])
       const card = createCard(
         cardData,
         openImagePopup,
-        handleLikeClick,
         profileId,
-        updateLikesCount
+        openConfirmPopup
       );
       addCardToDOM(card);
     });

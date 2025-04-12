@@ -36,26 +36,10 @@ function isInputValid(formElement, inputElement, config) {
 }
 
 //функция показать ошибку
-function showInputError(
-  formElement,
-  inputElement,
-  errorMessage,
-  config
-) {
+function showInputError(formElement, inputElement, errorMessage, config) {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
   inputElement.classList.add(config.inputErrorClass);
-
-  if (inputElement.type === "url" && !inputElement.validity.valid) {
-    if (inputElement.validity.typeMismatch) {
-      errorElement.textContent = "Введите корректный URL-адрес.";
-    } else {
-      errorElement.textContent = errorMessage; // Или стандартное сообщение
-    }
-  } else {
-    
-    errorElement.textContent = errorMessage;
-  }
-
+  errorElement.textContent = errorMessage;
   errorElement.classList.add(config.errorClass);
 }
 
@@ -70,13 +54,9 @@ function hideInputError(formElement, inputElement, config) {
 //функция переключения состояния кнопки
 //если есть невалидное поле - добавляем класс неактивности
 function toggleSubmitButton(inputs, submitButton, inactiveButtonClass) {
-  let hasInvalidInput = false; // все поля валидны
-  for (const input of inputs) {
-    if (!input.validity.valid) {
-      hasInvalidInput = true; // есть невалидное поле
-      break;
-    }
-  }
+  const hasInvalidInput = Array.from(inputs).some(
+    (input) => !input.validity.valid
+  );
 
   if (hasInvalidInput) {
     submitButton.classList.add(inactiveButtonClass);

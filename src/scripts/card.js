@@ -1,19 +1,11 @@
 import { deleteCard, putLikeCard, deleteLikeCard } from "./api.js";
-import { openModal, closeModal } from "./modal.js";
+import { closeModal } from "./modal.js";
+import { confirmPopup } from "./index.js";
 
 const cardTemplate = document.querySelector("#card-template").content;
-const confirmPopup = document.querySelector(".popup_type_confirm");
-const confirmForm = confirmPopup.querySelector(".popup__form");
 
-function createCard(
-  cardData,
-  openImagePopup,
-  handleLikeClick,
-  profileId,
-  updateLikesCount
-) {
+function createCard(cardData, openImagePopup, profileId, handleDeleteClick) {
   const cardElement = cardTemplate.querySelector(".card").cloneNode(true);
-
   const cardImage = cardElement.querySelector(".card__image");
   const cardAlt = cardElement.querySelector(".card__image");
   const cardTitle = cardElement.querySelector(".card__title");
@@ -29,13 +21,12 @@ function createCard(
   //проверка карточка чужая или моя
   if (cardData.owner._id === profileId) {
     deleteCardButton.classList.remove("card__delete-button_hidden");
+    deleteCardButton.addEventListener("click", () => {
+      handleDeleteClick(cardData._id, cardElement);
+    });
   } else {
     deleteCardButton.classList.add("card__delete-button_hidden");
   }
-
-  deleteCardButton.addEventListener("click", () => {
-    openConfirmPopup(cardData._id, cardElement);
-  });
 
   cardImage.addEventListener("click", () => {
     openImagePopup(cardData);
@@ -45,17 +36,25 @@ function createCard(
     handleLikeClick(cardData, likeButton, likesCounter, profileId);
   });
 
-  updateLikesCount(cardData.likes.length, likesCounter);
+  updateLikesCount(cardData, likesCounter, likeButton, profileId);
 
   return cardElement;
 }
 
-function openConfirmPopup(cardId, cardElement) {
-  openModal(confirmPopup);
-  confirmForm.addEventListener("submit", (evt) => {
-    evt.preventDefault();
-    handleDeleteCard(cardId, cardElement);
-  });
+function updateLikesCount(cardData, likesCounter, likeButton, profileId) {
+  if (cardData && cardData.likes) {
+    likesCounter.textContent = cardData.likes.length;
+    const isLiked = cardData.likes.some((user) => user._id === profileId);
+    if (isLiked) {
+      likeButton.classList.add("card__like-button_is-active");
+    } else {
+      likeButton.classList.remove("card__like-button_is-active");
+    }
+  } else {
+    console.error(
+      "Ошибка: cardData или cardData.likes не определены в updateLikesCount"
+    );
+  }
 }
 
 function handleDeleteCard(cardId, cardElement) {
@@ -69,11 +68,13 @@ function handleDeleteCard(cardId, cardElement) {
     });
 }
 
-function updateLikesCount(count, likesCounter) {
-  likesCounter.textContent = count;
-}
-
 function handleLikeClick(cardData, likeButton, likesCounter, profileId) {
+  //проверка
+  if (!cardData || !cardData.likes) {
+    console.error("Ошибка: Некорректные данные карточки при лайке:", cardData);
+    return;
+  }
+
   const cardId = cardData._id;
   const isLiked = cardData.likes.some((user) => user._id === profileId);
 
@@ -81,10 +82,16 @@ function handleLikeClick(cardData, likeButton, likesCounter, profileId) {
 
   likePromise
     .then((updatedCard) => {
-      // Обновляем состояние кнопки лайка
-      likeButton.classList.toggle("card__like-button_is-active");
+      //проверка
+      if (!updatedCard || !updatedCard.likes) {
+        console.error(
+          "Ошибка: Некорректный ответ сервера при лайке:",
+          updatedCard
+        );
+        return;
+      }
       // Обновляем счетчик лайков
-      updateLikesCount(updatedCard.likes.length, likesCounter);
+      updateLikesCount(updatedCard, likesCounter, likeButton, profileId);
       // Обновляем данные о лайках в cardData
       cardData.likes = updatedCard.likes;
     })
@@ -93,4 +100,4 @@ function handleLikeClick(cardData, likeButton, likesCounter, profileId) {
     });
 }
 
-export { createCard, handleLikeClick, updateLikesCount };
+export { createCard, handleDeleteCard };
